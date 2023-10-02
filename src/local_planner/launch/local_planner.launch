@@ -86,6 +86,6 @@
 
   <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher" args="-$(arg sensorOffsetX) -$(arg sensorOffsetY) 0 0 0 0 /sensor /vehicle 1000"/>
 
-  <node pkg="tf" type="static_transform_publisher" name="sensorTransPublisher" args="0 0 $(arg cameraOffsetZ) -1.5707963 0 -1.5707963 /sensor /rgbd_camera 1000"/>
+  <node pkg="tf" type="static_transform_publisher" name="sensorTransPublisher" args="0 0 $(arg cameraOffsetZ) -1.5707963 0 -1.5707963 /sensor /camera 1000"/>
 
 </launch>
