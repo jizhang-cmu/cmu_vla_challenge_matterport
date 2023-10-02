@@ -1,5 +1,86 @@
-<img src="img/header.jpg" alt="Header" width="100%"/>
+## Setup Repository
 
-The repository is meant for leveraging system development and robot deployment for ground-based autonomous navigation and exploration. Containing a variety of simulation environments, autonomous navigation modules such as collision avoidance, terrain traversability analysis, waypoint following, etc, and a set of visualization tools, users can develop autonomous navigation systems and later on port those systems onto real robots for deployment.
+The repository provides a navigation system for the CMU Vision-Language-Autonomy Challenge. The system is integrated with [Matterport3D](https://niessner.github.io/Matterport) photorealistic environment models and [AI Habitat](https://github.com/facebookresearch/habitat-sim) engine. The repository has been tested in Ubuntu 20.04 with [ROS Noetic](http://wiki.ros.org/noetic/Installation). Install dependencies with the command lines below.
+```
+sudo apt update
+sudo apt install libusb-dev
+```
+Clone the open-source repository.
+```
+git clone https://github.com/jizhang-cmu/cmu_vla_challange_matterport.git
+```
+In a terminal, go to the folder and compile.
+```
+cd cmu_vla_challange_matterport
+catkin_make
+```
+Install [Anaconda](https://www.anaconda.com) and accept the default installation directory in the home folder, then, in a terminal, create a conda environment named habitat using the provided spec file.
+```
+conda create --name habitat --file habitat_spec_file.txt
+```
+Alternatively, users can create the conda environment using command lines by following instructions on the [AI Habitat website](https://github.com/facebookresearch/habitat-sim).
 
-Please use instructions on our [project page](https://www.cmu-exploration.com).
+## Prepare Environment Model
+
+Go to [Matterport3D website](https://niessner.github.io/Matterport), sign Terms of Use, and download the environment models using the given download_mp.py script. Running the script requires Python 2.7.
+```
+python2 download_mp.py -o data_download_dir
+```
+Then, run the script again with with '--task habitat' flag to download the files prepared for AI Habitat to use.
+```
+python2 download_mp.py --task habitat -o data_download_dir
+```
+In the two downloads, find the matching environment ID. Here, we will use ID:17DRP5sb8fy as an example, which is the first downloaded environment model. In the first download, find the matterport_mesh.zip file, unzip it, and copy all mesh files, i.e. .obj, .jpg, .mtl, to the 'src/vehicle_simulator/mesh/matterport/meshes' folder. You can also find a house_segmentations.zip file. Extract the .house file, rename it to a matterport.house file, and copy it to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder. Extract the .ply file, rename it to a map.ply file, and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder.
+
+In the second download, find the mp3d_habitat.zip file and extract the files from it with the same environment ID: 17DRP5sb8fy, then copy all files, i.e. .glb, .navmesh, .ply, to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder.
+
+Open the map.ply file renamed and copied from the first download in CloudCompare (installed with 'snap install cloudcompare'), use the Segment tool on the tool bar to crop out the region that you would like the vehicle to traverse. Save the point cloud to a traversable_area.ply file and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder. Note that the traversable_area.ply file is used by the system to check the traversability of the waypoints. Users can skip this file and the system will accept waypoints placed anywhere in the environment.
+
+Prepared environment model files should look like this,
+
+mesh/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;matterport/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;meshes/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport.obj<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xxx.jpg (multiple files)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xxx.mtl (one file)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;pointclouds/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;map.ply<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;traversable_area.ply (optional)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;segmentations/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport.glb<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport.house<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport.navmesh<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport_semantic.ply<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model.config<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model.sdf    
+  
+## Launch System
+
+In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the system,
+```
+./system_bring_up.sh
+```
+If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
+
+If the system does not launch correctly, open the 'system_bring_up.sh' file in a text editor and check the paths defined at the top, i.e. CONDA_DIR, CONDA_BIN_DIR, CONDA_SETUP_FILE, CONDA_PROFILE_FILE, match the Anaconda installation on your computer.
+
+If still not working, users can try launching the autonomy system and AI Habiat in two separate terminals. In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the autonomy system.
+```
+source devel/setup.sh  
+roslaunch vehicle_simulator system_matterport.launch 
+```
+In a second terminal, go to the 'cmu_vla_challange_matterport/src/segmentation_proc/scripts' folder and run AI Habitat.
+```
+python3 ./habitat_online_v0.2.1.py  conda activate habitat
+```
+
+## Credits
+
+[velodyne_simulator](http://wiki.ros.org/velodyne_simulator) and [joystick_drivers](http://wiki.ros.org/joystick_drivers) packages are from open-source releases.
+
+## Relevant Links
+
+[Autonomous Exploration Development Environment](https://www.cmu-exploration.com)
+
+[Far Planner](https://github.com/MichaelFYang/far_planner) for global route planning
