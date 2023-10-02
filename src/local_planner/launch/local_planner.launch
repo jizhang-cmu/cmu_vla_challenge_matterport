@@ -48,7 +48,7 @@
     <param name="autonomySpeed" value="$(arg autonomySpeed)" />
     <param name="joyToSpeedDelay" value="$(arg joyToSpeedDelay)" />
     <param name="joyToCheckObstacleDelay" type="double" value="5.0" />
-    <param name="goalClearRange" type="double" value="0.1" />
+    <param name="goalClearRange" type="double" value="0" />
     <param name="goalX" type="double" value="$(arg goalX)" />
     <param name="goalY" type="double" value="$(arg goalY)" />
   </node>

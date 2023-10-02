@@ -6,7 +6,7 @@
     <param name="trav_area_file_dir" type="string" value="$(find vehicle_simulator)/mesh/$(arg world_name)/pointclouds/traversable_area.ply" />
     <param name="boundary_file_dir" type="string" value="$(find vehicle_simulator)/mesh/$(arg world_name)/pointclouds/boundary.ply" />
     <param name="waypointXYRadius" type="double" value="0.2" />
-    <param name="waypointProjDis" type="double" value="0.5" />
+    <param name="waypointProjDis" type="double" value="0.2" />
     <param name="twoWayHeading" type="bool" value="true" />
     <param name="frameRate" type="double" value="5.0" />
     <param name="checkTravArea" type="bool" value="true" />
