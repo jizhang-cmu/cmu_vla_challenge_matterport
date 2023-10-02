@@ -61,7 +61,7 @@ In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the 
 ```
 ./system_bring_up.sh
 ```
-If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
+If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation while avoiding collisions on the way. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
 
 If the system does not launch correctly, open the 'system_bring_up.sh' file in a text editor and check the paths defined at the top, i.e. CONDA_DIR, CONDA_BIN_DIR, CONDA_SETUP_FILE, CONDA_PROFILE_FILE, match the Anaconda installation on your computer.
 
