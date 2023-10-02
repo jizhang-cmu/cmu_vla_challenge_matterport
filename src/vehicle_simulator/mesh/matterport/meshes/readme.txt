@@ -1,1 +1,1 @@
-Put Matterport3D mesh files (.mtl, .obj, .dae, .jpg) in this folder.
+Put Matterport3D mesh files (.mtl, .obj, .jpg) in this folder.

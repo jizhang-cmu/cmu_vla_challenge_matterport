@@ -1,1 +1,1 @@
-Put Matterport3D map files (.ply, etc) and traversable_area.ply in this folder.
+Put Matterport3D pointcloud files (.ply, etc) in this folder.

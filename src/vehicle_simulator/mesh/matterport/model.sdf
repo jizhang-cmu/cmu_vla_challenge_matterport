@@ -18,14 +18,14 @@
       <collision name="collision">
         <geometry>
           <mesh>
-            <uri>model://matterport/meshes/matterport.dae</uri>
+            <uri>model://matterport/meshes/matterport.obj</uri>
           </mesh>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <mesh>
-            <uri>model://matterport/meshes/matterport.dae</uri>
+            <uri>model://matterport/meshes/matterport.obj</uri>
           </mesh>
         </geometry>
       </visual>
