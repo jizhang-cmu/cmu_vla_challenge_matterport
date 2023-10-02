@@ -30,7 +30,7 @@ Then, run the script again with with '--task habitat' flag to download the files
 ```
 python2 download_mp.py --task habitat -o data_download_dir
 ```
-In the two downloads, find the matching environment ID. Here, we will use ID:17DRP5sb8fy as an example, which is the first downloaded environment model. In the first download, find the matterport_mesh.zip file, unzip it, rename the .obj file to matterport.obj and and copy all files, i.e. .obj, .jpg, .mtl, to the 'src/vehicle_simulator/mesh/matterport/meshes' folder. You can also find a house_segmentations.zip file, extract the .ply file and rename it to a map.ply file, and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder.
+In the two downloads, find the matching environment ID. Here, we will use ID:17DRP5sb8fy as an example, which is the first downloaded environment model. In the first download, find the matterport_mesh.zip file, unzip it, rename the .obj file to a matterport.obj file and copy all the files, i.e. .obj, .jpg, .mtl, to the 'src/vehicle_simulator/mesh/matterport/meshes' folder. You can also find a house_segmentations.zip file, extract the .ply file and rename it to a map.ply file, and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder.
 
 In the second download, find the mp3d_habitat.zip file and extract the files from it with the same environment ID: 17DRP5sb8fy, then rename the files to matterport.glb, matterport.house, matterport.navmesh, matterport_semantic.ply and copy the files to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder.
 
