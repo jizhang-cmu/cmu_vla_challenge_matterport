@@ -24,6 +24,10 @@
 
   <include file="$(find terrain_analysis)/launch/terrain_analysis.launch" />
 
+  <include file="$(find terrain_analysis_ext)/launch/terrain_analysis_ext.launch" >
+    <arg name="checkTerrainConn" value="$(arg checkTerrainConn)"/>
+  </include>
+
   <include file="$(find vehicle_simulator)/launch/vehicle_simulator.launch" >
     <arg name="world_name" value="$(arg world_name)"/>
     <arg name="vehicleHeight" value="$(arg vehicleHeight)"/>
