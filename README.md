@@ -1,4 +1,4 @@
-## Setup Repository
+## Repository Setup
 
 The repository provides a navigation system for the CMU Vision-Language-Autonomy Challenge. The system is integrated with [Matterport3D](https://niessner.github.io/Matterport) photorealistic environment models and [AI Habitat](https://github.com/facebookresearch/habitat-sim) engine. The repository has been tested in Ubuntu 20.04 with [ROS Noetic](http://wiki.ros.org/noetic/Installation). Install dependencies with the command lines below.
 ```
@@ -20,7 +20,7 @@ conda create --name habitat --file habitat_spec_file.txt
 ```
 Alternatively, users can create the conda environment using command lines by following instructions on the [AI Habitat website](https://github.com/facebookresearch/habitat-sim).
 
-## Prepare Environment Model
+## Environment Model Preparation
 
 Go to [Matterport3D website](https://niessner.github.io/Matterport), sign Terms of Use, and download the environment models using the given download_mp.py script. Running the script requires Python 2.7.
 ```
@@ -36,9 +36,27 @@ In the second download, find the mp3d_habitat.zip file and extract the files f
 
 Matterport3D environment models often have multiple floors. We recommend using CloudCompare (installed with 'snap install cloudcompare') to choose the vehicle start point on the desired floor. Load the map.ply file renamed and copied from the first download. Then, use 'Tools->Segmentation->Cross Section' to crop off the ceiling and unused floors to reveal the start area.
 
+<p align="center">
+  <img src="img/map_cropping.jpg" alt="Map Cropping" width="70%"/>
+</p>
+
 Use 'Tools/Point picking' to choose the vehicle start point. You can use these values to set 'vehicleX', 'vehicleY', 'terrainZ' in 'src/vehicle_simulator/launch/system_matterport.launch' (default values are (0, 0, 0)). You can further save the cropped point cloud as a new map.ply file and use it to replace the original file.
 
-Also in CloudCompare, use 'Edit->Segment' to crop out the region that you want the vehicle to traverse. Save the point cloud to a traversable_area.ply file and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder. The traversable_area.ply file is used by the system to check the traversability of the waypoints. Users may skip this file and the system will accept waypoints placed anywhere in the environment.
+<p align="center">
+  <img src="img/start_point.jpg" alt="Start Point" width="70%"/>
+</p>
+
+Also in CloudCompare, use 'Edit->Segment' to extract the region that you want the vehicle to traverse.
+
+<p align="center">
+  <img src="img/trav_area_selection.jpg" alt="Traversable Area Selection" width="70%"/>
+</p>
+
+Save the extracted point cloud to a traversable_area.ply file and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder. The image below shows our extracted point cloud. The traversable_area.ply file is used by the system to check the traversability of the waypoints. Users may skip this file and the system will accept waypoints placed anywhere in the environment.
+
+<p align="center">
+  <img src="img/trav_area_saved.jpg" alt="Traversable Area Saved" width="70%"/>
+</p>
 
 Prepared environment model files should look like this,
 
@@ -57,9 +75,9 @@ mesh/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport.navmesh<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;matterport_semantic.ply<br>
 &nbsp;&nbsp;&nbsp;&nbsp;model.config<br>
-&nbsp;&nbsp;&nbsp;&nbsp;model.sdf    
-  
-## Launch System
+&nbsp;&nbsp;&nbsp;&nbsp;model.sdf
+
+## System Launch
 
 In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the system,
 ```
@@ -67,9 +85,19 @@ In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the 
 ```
 If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation while avoiding collisions on the way. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
 
-If the system does not launch correctly, open the 'system_bring_up.sh' file in a text editor and check the paths defined at the top, i.e. CONDA_DIR, CONDA_BIN_DIR, CONDA_SETUP_FILE, CONDA_PROFILE_FILE, match the Anaconda installation on your computer.
+<p align="center">
+  <img src="img/rviz_full.jpg" alt="RVIZ Full" width="70%"/>
+</p>
 
-If still not working, users can try launching the autonomy system and AI Habiat in two separate terminals. In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the autonomy system.
+Users can also use the control panel to navigate the vehicle by clicking the in the black box. The system will switch to *smart joystick* mode - the vehicle tries to follow the joystick command and avoid collisions at the same time. To resume waypoint navigation, press the 'Resume Navigation to Goal' button. Note that users can use a PS3/4 or Xbox controller with a USB or Bluetooth interface instead of the virtual joystick (If using the Xbox Wireless USB Adapter, please install [xow](https://github.com/medusalix/xow)). Users can use the right joystick on the controller to navigate the vehicle. Pushing the right joystick to the front and back drives the vehicle around and pushing the right joystick to the left and right makes rotations. Holding the obstacle-check button cancels obstacle checking and clicking the clear-terrain-map button reinitializes the terrain map. To resume autonomous navigation, hold the mode-switch button and at the same time push the right joystick. The right joystick gives the speed. If only holding the mode-switch button, the system will use the default speed.
+
+<p align="center">
+  <img src="img/rviz_control_panel.jpg" alt="RVIZ Control Panel" width="30%"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="img/ps3_controller.jpg" alt="PS3 Controller" width="45%"/>
+</p>
+
+If the system does not launch correctly, open the 'system_bring_up.sh' file in a text editor and check the paths defined at the top, i.e. CONDA_DIR, CONDA_BIN_DIR, CONDA_SETUP_FILE, CONDA_PROFILE_FILE, match the Anaconda installation on your computer. If still not working, users can try launching the autonomy system and AI Habiat in two separate terminals. In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the autonomy system.
 ```
 source devel/setup.sh  
 roslaunch vehicle_simulator system_matterport.launch 
