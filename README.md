@@ -1,6 +1,6 @@
 ## Repository Setup
 
-The repository provides a navigation system for the CMU Vision-Language-Autonomy Challenge. The system is integrated with [Matterport3D](https://niessner.github.io/Matterport) photorealistic environment models and [AI Habitat](https://github.com/facebookresearch/habitat-sim) engine. The repository has been tested in Ubuntu 20.04 with [ROS Noetic](http://wiki.ros.org/noetic/Installation). Install dependencies with the command lines below.
+The repository provides the base navigation system for the CMU Vision-Language-Autonomy Challenge. The system is integrated with [Matterport3D](https://niessner.github.io/Matterport) photorealistic environment models and [AI Habitat](https://github.com/facebookresearch/habitat-sim) engine. The repository has been tested in Ubuntu 20.04 with [ROS Noetic](http://wiki.ros.org/noetic/Installation). Install dependencies with the command lines below.
 ```
 sudo apt update
 sudo apt install libusb-dev
@@ -46,7 +46,13 @@ Use 'Tools/Point picking' to choose the vehicle start point. You can use these v
   <img src="img/start_point.jpg" alt="Start Point" width="70%"/>
 </p>
 
-Also in CloudCompare, use 'Edit->Segment' to extract the region that you want the vehicle to traverse.
+To select the traversable area for navigation, we need to only load the x, y, z fields of the map.ply file to CloudCompare.
+
+<p align="center">
+  <img src="img/map_loading.jpg" alt="Map Loading" width="35%"/>
+</p>
+
+Use 'Edit->Segment' to extract the region that you want the vehicle to traverse.
 
 <p align="center">
   <img src="img/trav_area_selection.jpg" alt="Traversable Area Selection" width="70%"/>
@@ -58,7 +64,7 @@ Save the extracted point cloud to a traversable_area.ply file and copy it to the
   <img src="img/trav_area_saved.jpg" alt="Traversable Area Saved" width="70%"/>
 </p>
 
-Prepared environment model files should look like this,
+Prepared environment model files should look like below,
 
 mesh/<br>
 &nbsp;&nbsp;&nbsp;&nbsp;matterport/<br>
@@ -86,14 +92,14 @@ In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the 
 If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation while avoiding collisions on the way. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
 
 <p align="center">
-  <img src="img/rviz_full.jpg" alt="RVIZ Full" width="70%"/>
+  <img src="img/rviz_full.jpg" alt="RVIZ Full" width="80%"/>
 </p>
 
 Users can also use the control panel to navigate the vehicle by clicking the in the black box. The system will switch to *smart joystick* mode - the vehicle tries to follow the joystick command and avoid collisions at the same time. To resume waypoint navigation, press the 'Resume Navigation to Goal' button. Note that users can use a PS3/4 or Xbox controller with a USB or Bluetooth interface instead of the virtual joystick (If using the Xbox Wireless USB Adapter, please install [xow](https://github.com/medusalix/xow)). Users can use the right joystick on the controller to navigate the vehicle. Pushing the right joystick to the front and back drives the vehicle around and pushing the right joystick to the left and right makes rotations. Holding the obstacle-check button cancels obstacle checking and clicking the clear-terrain-map button reinitializes the terrain map. To resume autonomous navigation, hold the mode-switch button and at the same time push the right joystick. The right joystick gives the speed. If only holding the mode-switch button, the system will use the default speed.
 
 <p align="center">
   <img src="img/rviz_control_panel.jpg" alt="RVIZ Control Panel" width="30%"/>
-  &nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;
   <img src="img/ps3_controller.jpg" alt="PS3 Controller" width="45%"/>
 </p>
 
