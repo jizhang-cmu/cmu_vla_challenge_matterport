@@ -34,7 +34,11 @@ In the two downloads, find the matching environment ID. Here, we will use ID:17
 
 In the second download, find the mp3d_habitat.zip file and extract the files from it with the same environment ID: 17DRP5sb8fy, then rename the files to matterport.glb, matterport.house, matterport.navmesh, matterport_semantic.ply and copy the files to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder.
 
-Open the map.ply file renamed and copied from the first download in CloudCompare (installed with 'snap install cloudcompare'), use the Segment tool on the tool bar to crop out the region that you would like the vehicle to traverse. Save the point cloud to a traversable_area.ply file and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder. Note that the traversable_area.ply file is used by the system to check the traversability of the waypoints. Users can skip this file and the system will accept waypoints placed anywhere in the environment.
+Matterport3D environment models often have multiple floors. We recommend using CloudCompare (installed with 'snap install cloudcompare') to choose the vehicle start point on the desired floor. Load the map.ply file renamed and copied from the first download. Then, use 'Tools->Segmentation->Cross Section' to crop off the ceiling and unused floors to reveal the start area.
+
+Use 'Tools/Point picking' to choose the vehicle start point. You can use these values to set 'vehicleX', 'vehicleY', 'terrainZ' in 'src/vehicle_simulator/launch/system_matterport.launch' (default values are (0, 0, 0)). You can further save the cropped point cloud as a new map.ply file and use it to replace the original file.
+
+Also in CloudCompare, use 'Edit->Segment' to crop out the region that you want the vehicle to traverse. Save the point cloud to a traversable_area.ply file and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder. The traversable_area.ply file is used by the system to check the traversability of the waypoints. Users may skip this file and the system will accept waypoints placed anywhere in the environment.
 
 Prepared environment model files should look like this,
 
