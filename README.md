@@ -26,13 +26,13 @@ Go to [Matterport3D website](https://niessner.github.io/Matterport), sign Terms 
 ```
 python2 download_mp.py -o data_download_dir
 ```
-Then, run the script again with with '--task habitat' flag to download the files prepared for AI Habitat.
+Then, run the script again with '--task habitat' flag to download the files prepared for AI Habitat.
 ```
 python2 download_mp.py --task habitat -o data_download_dir
 ```
-In the two downloads, find the matching environment ID. Here, we use ID:17DRP5sb8fy as an example, which is the first downloaded environment model. In the first download, find the matterport_mesh.zip file, unzip it, rename the .obj file to a matterport.obj file, and copy all the files, i.e. .obj, .jpg, .mtl, to the 'src/vehicle_simulator/mesh/matterport/meshes' folder. You can also find a house_segmentations.zip file, extract the .ply file and rename it to a map.ply file, and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder.
+In the two downloads, find the matching environment ID. Here, we use ID:17DRP5sb8fy as an example, which is for the first downloaded environment model. In the first download, find the matterport_mesh.zip file, unzip it, rename the .obj file to a matterport.obj file, and copy all the files, i.e. .obj, .jpg, .mtl, to the 'src/vehicle_simulator/mesh/matterport/meshes' folder. You can also find a house_segmentations.zip file, extract the .ply file and rename it to a map.ply file, and copy it to the 'src/vehicle_simulator/mesh/matterport/pointclouds' folder.
 
-In the second download, find the mp3d_habitat.zip file and extract the files with the same environment ID: 17DRP5sb8fy, then rename the files to matterport.glb, matterport.house, matterport.navmesh, matterport_semantic.ply and copy the files to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder.
+In the second download, find the mp3d_habitat.zip file and extract the files with the same environment ID: 17DRP5sb8fy, then rename the files to matterport.glb, matterport.house, matterport.navmesh, matterport_semantic.ply, and copy the files to the 'src/vehicle_simulator/mesh/matterport/segmentations' folder.
 
 **Setting start point** - Matterport3D environment models often have multiple floors. We recommend using CloudCompare (installed with 'snap install cloudcompare') to choose the vehicle start point on the desired floor. Load the map.ply file renamed and copied from the first download. Then, use 'Tools->Segmentation->Cross Section' to crop off the ceiling and unused floors to reveal the start area.
 
@@ -89,7 +89,7 @@ In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the 
 ```
 ./system_bring_up.sh
 ```
-Users should see data showing up in RVIZ. Users can then use the 'Waypoint with Heading' button to navigate the vehicle. **To set the waypoint, press the left button on the mouse to choose the position, then move the mouse to choose the orientation before releasing the left button.** The vehicle will navigate to the waypoint avoiding collisions on the way and then turn to the orientation. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
+Users should see data showing up in RVIZ. Users can then use the 'Waypoint with Heading' button to navigate the vehicle. **To set the waypoint, press the left button on the mouse to choose the position, then move the mouse to choose the orientation before releasing the left button.** The vehicle will navigate to the waypoint avoiding collisions on the way and then turn to the orientation. Note that the waypoints are meant to be relatively close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
 
 <p align="center">
   <img src="img/rviz_full.jpg" alt="RVIZ Full" width="80%"/>
