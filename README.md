@@ -89,7 +89,7 @@ In a terminal, go to the 'cmu_vla_challange_matterport' folder and bring up the 
 ```
 ./system_bring_up.sh
 ```
-If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'waypoint_with_heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation while avoiding collisions on the way. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
+If the system is set up correctly, users should see data showing up in RVIZ and users can use the 'Waypoint with Heading' button to navigate the vehicle. Press the right button on the mouse to set the waypoint, then move the mouse to give the orientation before releasing the right button. The vehicle will navigate to the waypoint and turn to the orientation while avoiding collisions on the way. Note that the waypoints are meant to be close to the vehicle. Setting the waypoint too far can cause the vehicle to stuck at a dead end.
 
 <p align="center">
   <img src="img/rviz_full.jpg" alt="RVIZ Full" width="80%"/>
@@ -110,7 +110,8 @@ roslaunch vehicle_simulator system_matterport.launch 
 ```
 In a second terminal, go to the 'cmu_vla_challange_matterport/src/segmentation_proc/scripts' folder and run AI Habitat.
 ```
-python3 ./habitat_online_v0.2.1.py  conda activate habitat
+python3 ./habitat_online_v0.2.1.py
+conda activate habitat
 ```
 
 ## Credits
