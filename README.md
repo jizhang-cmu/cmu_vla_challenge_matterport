@@ -7,7 +7,7 @@ sudo apt install libusb-dev
 ```
 Clone the open-source repository.
 ```
-git clone https://github.com/jizhang-cmu/cmu_vla_challange_matterport.git
+git clone https://github.com/jizhang-cmu/cmu_vla_challenge_matterport.git
 ```
 In a terminal, go to the folder and compile.
 ```
