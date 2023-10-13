@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <ros/ros.h>
 
+#include <string>
+#include <vector>
+#include <map>
+
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -20,8 +24,44 @@ using namespace std;
 const double PI = 3.1415926;
 
 string seg_file_dir;
-int segDisplayInterval = 2;
-int segDisplayCount = 0;
+string labelType = "base";
+double broadcastHoriThre = 2.0;
+double broadcastVertThre = 1.0;
+double broadcastRate = 5.0;
+
+// define regin names
+map<string, string> RegionName = {
+{"a", "bathroom"},
+{"b", "bedroom"},
+{"c", "closet"},
+{"d", "dining room"},
+{"e", "entryway/foyer/lobby"},
+{"f", "familyroom"},
+{"g", "garage"},
+{"h", "hallway"},
+{"i", "library"},
+{"j", "laundryroom/mudroom"},
+{"k", "kitchen"},
+{"l", "living room"},
+{"m", "meetingroom/conferenceroom"},
+{"n", "lounge"},
+{"o", "office"},
+{"p", "porch/terrace/deck/driveway"},
+{"r", "rec/game"},
+{"s", "stairs"},
+{"t", "toilet"},
+{"u", "utilityroom/toolroom"},
+{"v", "tv"},
+{"w", "workout/gym/exercise"},
+{"x", "outdoor areas"},
+{"y", "balcony"},
+{"z", "other room"},
+{"B", "bar"},
+{"C", "classroom"},
+{"D", "dining booth"},
+{"S", "spa/sauna"},
+{"Z", "junk"},
+{"-", "no label"} };
 
 // define region point
 struct RegionPoint {
@@ -76,13 +116,13 @@ POINT_CLOUD_REGISTER_POINT_STRUCT (ObjectPoint,
 pcl::PointCloud<RegionPoint>::Ptr regionAll(new pcl::PointCloud<RegionPoint>());
 pcl::PointCloud<ObjectPoint>::Ptr objectAll(new pcl::PointCloud<ObjectPoint>());
 
-double systemTime = 0;
-
-float vehicleRoll = 0, vehiclePitch = 0, vehicleYaw = 0;
+double systemTime = 0, sendTime = 0;
 float vehicleX = 0, vehicleY = 0, vehicleZ = 0;
 
 sensor_msgs::PointCloud2 regionAll2, objectAll2;
 visualization_msgs::MarkerArray regionMarkerArray, objectMarkerArray;
+vector<string> CategoryMappingName;
+vector<string> CategoryMappingName40;
 
 int readSegmentationFile(const char *filename)
 {
@@ -181,7 +221,7 @@ int readSegmentationFile(const char *filename)
     regPoint.height = height;
     regPoint.region_index = house_index;
     regPoint.level_index = level_index;
-    strncpy((char*)regPoint.label, label_buffer, 1024);
+    strncpy((char*)regPoint.label, label_buffer, 1);
     regionAll->points.push_back(regPoint);
   }
     
@@ -262,10 +302,15 @@ int readSegmentationFile(const char *filename)
   for (int i = 0; i < ncategories; i++) {
     int label_id, mpcat40_id;
     char label_name[1024], mpcat40_name[1024];
+    string label_name_str, mpcat40_name_str;
     val = fscanf(fp, "%s", cmd);
     val = fscanf(fp, "%d", &house_index);
     val = fscanf(fp, "%d %s", &label_id, label_name);
     val = fscanf(fp, "%d %s", &mpcat40_id, mpcat40_name);
+    label_name_str = label_name;
+    mpcat40_name_str = mpcat40_name;
+    CategoryMappingName.push_back(label_name_str);
+    CategoryMappingName40.push_back(mpcat40_name_str);
     for (int j = 0; j < 5; j++) { val = fscanf(fp, "%d", &dummy); }
     if (strcmp(cmd, "C")) { fprintf(stderr, "Error reading category %d\n", i); return 0; }
   }
@@ -324,13 +369,6 @@ void odometryHandler(const nav_msgs::Odometry::ConstPtr& odom)
 {
   systemTime = odom->header.stamp.toSec();
 
-  double roll, pitch, yaw;
-  geometry_msgs::Quaternion geoQuat = odom->pose.pose.orientation;
-  tf::Matrix3x3(tf::Quaternion(geoQuat.x, geoQuat.y, geoQuat.z, geoQuat.w)).getRPY(roll, pitch, yaw);
-
-  vehicleRoll = roll;
-  vehiclePitch = pitch;
-  vehicleYaw = yaw;
   vehicleX = odom->pose.pose.position.x;
   vehicleY = odom->pose.pose.position.y;
   vehicleZ = odom->pose.pose.position.z;
@@ -343,7 +381,10 @@ int main(int argc, char** argv)
   ros::NodeHandle nhPrivate = ros::NodeHandle("~");
 
   nhPrivate.getParam("seg_file_dir", seg_file_dir);
-  nhPrivate.getParam("segDisplayInterval", segDisplayInterval);
+  nhPrivate.getParam("labelType", labelType);
+  nhPrivate.getParam("broadcastHoriThre", broadcastHoriThre);
+  nhPrivate.getParam("broadcastVertThre", broadcastVertThre);
+  nhPrivate.getParam("broadcastRate", broadcastRate);
 
   ros::Subscriber subOdometry = nh.subscribe<nav_msgs::Odometry> ("/state_estimation", 5, odometryHandler);
 
@@ -351,9 +392,9 @@ int main(int argc, char** argv)
 
   ros::Publisher pubObject = nh.advertise<sensor_msgs::PointCloud2> ("/object_segmentations", 5);
 
-  ros::Publisher pubRegionMarker = nh.advertise<visualization_msgs::MarkerArray>("region_segmentation_markers", 10);
+  ros::Publisher pubRegionMarker = nh.advertise<visualization_msgs::MarkerArray>("region_markers", 5);
 
-  ros::Publisher pubObjectMarker = nh.advertise<visualization_msgs::MarkerArray>("object_segmentation_markers", 10);
+  ros::Publisher pubObjectMarker = nh.advertise<visualization_msgs::MarkerArray>("object_markers", 5);
 
   // read segmentation file
   if (readSegmentationFile(seg_file_dir.c_str()) != 1) {
@@ -364,14 +405,14 @@ int main(int argc, char** argv)
   pcl::toROSMsg(*regionAll, regionAll2);
   pcl::toROSMsg(*objectAll, objectAll2);
 
-  // prepare marker array messages
+  // prepare region marker array message
   int regionNum = regionAll->points.size();
   visualization_msgs::MarkerArray regionMarkerArray;
   regionMarkerArray.markers.resize(regionNum);
   for (int i = 0; i < regionNum; i++) {
     regionMarkerArray.markers[i].header.frame_id = "map";
     regionMarkerArray.markers[i].header.stamp = ros::Time().fromSec(systemTime);
-    regionMarkerArray.markers[i].ns = "region";
+    regionMarkerArray.markers[i].ns = RegionName.at((char*)regionAll->points[i].label);
     regionMarkerArray.markers[i].id = regionAll->points[i].region_index;
     regionMarkerArray.markers[i].action = visualization_msgs::Marker::ADD;
     regionMarkerArray.markers[i].type = visualization_msgs::Marker::CUBE;
@@ -387,34 +428,11 @@ int main(int argc, char** argv)
     regionMarkerArray.markers[i].scale.z = regionAll->points[i].box_max_z - regionAll->points[i].box_min_z;
     regionMarkerArray.markers[i].color.a = 0.5;
     regionMarkerArray.markers[i].color.r = 1.0;
-    regionMarkerArray.markers[i].color.g = 0;
+    regionMarkerArray.markers[i].color.g = 1.0;
     regionMarkerArray.markers[i].color.b = 0;
   }
 
   int objectNum = objectAll->points.size();
-  visualization_msgs::MarkerArray objectMarkerArray;
-  objectMarkerArray.markers.resize(objectNum);
-  for (int i = 0; i < objectNum; i++) {
-    objectMarkerArray.markers[i].header.frame_id = "map";
-    objectMarkerArray.markers[i].header.stamp = ros::Time().fromSec(systemTime);
-    objectMarkerArray.markers[i].ns = "object";
-    objectMarkerArray.markers[i].id = objectAll->points[i].object_index;
-    objectMarkerArray.markers[i].action = visualization_msgs::Marker::ADD;
-    objectMarkerArray.markers[i].type = visualization_msgs::Marker::CUBE;
-    objectMarkerArray.markers[i].pose.position.x = objectAll->points[i].x;
-    objectMarkerArray.markers[i].pose.position.y = objectAll->points[i].y;
-    objectMarkerArray.markers[i].pose.position.z = objectAll->points[i].z;
-    objectMarkerArray.markers[i].pose.orientation = tf::createQuaternionMsgFromRollPitchYaw
-                                                    (0, 0, atan2(objectAll->points[i].axis0_y, objectAll->points[i].axis0_x));
-    objectMarkerArray.markers[i].scale.x = 2.0 * objectAll->points[i].radius_x;
-    objectMarkerArray.markers[i].scale.y = 2.0 * objectAll->points[i].radius_y;
-    objectMarkerArray.markers[i].scale.z = 2.0 * objectAll->points[i].radius_z;
-    objectMarkerArray.markers[i].color.a = 0.1;
-    objectMarkerArray.markers[i].color.r = 0;
-    objectMarkerArray.markers[i].color.g = 1.0;
-    objectMarkerArray.markers[i].color.b = 0;
-  }
-
   printf("\nRead %d regions and %d objects.\n\n", regionNum, objectNum);
 
   ros::Rate rate(100);
@@ -422,8 +440,7 @@ int main(int argc, char** argv)
   while (status) {
     ros::spinOnce();
 
-    segDisplayCount++;
-    if (segDisplayCount >= 100 * segDisplayInterval) {
+    if (systemTime - sendTime > 1.0 / broadcastRate) {
       // publish point clouds with regions
       regionAll2.header.stamp = ros::Time().fromSec(systemTime);
       regionAll2.header.frame_id = "map";
@@ -434,11 +451,60 @@ int main(int argc, char** argv)
       objectAll2.header.frame_id = "map";
       pubObject.publish(objectAll2);
 
+      // prepare object marker array message surrounding the vehicle
+      int objValid[objectNum] = {0};
+      int objValidNum = 0;
+      for (int j = 0; j < objectNum; j++) {
+        float disX = objectAll->points[j].x - vehicleX;
+        float disY = objectAll->points[j].y - vehicleY;
+        float disZ = objectAll->points[j].z - vehicleZ;
+        float disXY = sqrt(disX * disX + disY * disY);
+
+        if (disXY < broadcastHoriThre && fabs(disZ) < broadcastVertThre) {
+          objValid[j] = 1;
+          objValidNum++;
+        } else {
+          objValid[j] = 0;
+        }
+      }
+
+      int i = 0;
+      visualization_msgs::MarkerArray objectMarkerArray;
+      objectMarkerArray.markers.resize(objValidNum);
+      for (int j = 0; j < objectNum; j++) {
+        if (objValid[j] == 1) {
+          objectMarkerArray.markers[i].header.frame_id = "map";
+          objectMarkerArray.markers[i].header.stamp = ros::Time().fromSec(systemTime);
+          if (labelType == "base"){
+            objectMarkerArray.markers[i].ns = CategoryMappingName[objectAll->points[j].category_index];
+          }
+          else if (labelType == "40"){
+            objectMarkerArray.markers[i].ns = CategoryMappingName40[objectAll->points[j].category_index];
+          }
+          objectMarkerArray.markers[i].id = objectAll->points[j].object_index;
+          objectMarkerArray.markers[i].action = visualization_msgs::Marker::ADD;
+          objectMarkerArray.markers[i].type = visualization_msgs::Marker::CUBE;
+          objectMarkerArray.markers[i].pose.position.x = objectAll->points[j].x;
+          objectMarkerArray.markers[i].pose.position.y = objectAll->points[j].y;
+          objectMarkerArray.markers[i].pose.position.z = objectAll->points[j].z;
+          objectMarkerArray.markers[i].pose.orientation = tf::createQuaternionMsgFromRollPitchYaw
+                                                          (0, 0, atan2(objectAll->points[j].axis0_y, objectAll->points[j].axis0_x));
+          objectMarkerArray.markers[i].scale.x = 2.0 * objectAll->points[j].radius_x;
+          objectMarkerArray.markers[i].scale.y = 2.0 * objectAll->points[j].radius_y;
+          objectMarkerArray.markers[i].scale.z = 2.0 * objectAll->points[j].radius_z;
+          objectMarkerArray.markers[i].color.a = 0.1;
+          objectMarkerArray.markers[i].color.r = 1.0;
+          objectMarkerArray.markers[i].color.g = 0;
+          objectMarkerArray.markers[i].color.b = 0;
+          i++;
+        }
+      }
+
       // publish marker arrays
       pubRegionMarker.publish(regionMarkerArray);
       pubObjectMarker.publish(objectMarkerArray);
 
-      segDisplayCount = 0;
+      sendTime = systemTime;
     }
 
     status = ros::ok();
