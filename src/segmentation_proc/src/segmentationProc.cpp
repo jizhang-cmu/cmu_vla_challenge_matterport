@@ -300,17 +300,24 @@ int readSegmentationFile(const char *filename)
 
   // read categories
   for (int i = 0; i < ncategories; i++) {
-    int label_id, mpcat40_id;
+    int label_id, mpcat40_id, len;
     char label_name[1024], mpcat40_name[1024];
-    string label_name_str, mpcat40_name_str;
     val = fscanf(fp, "%s", cmd);
     val = fscanf(fp, "%d", &house_index);
     val = fscanf(fp, "%d %s", &label_id, label_name);
     val = fscanf(fp, "%d %s", &mpcat40_id, mpcat40_name);
-    label_name_str = label_name;
-    mpcat40_name_str = mpcat40_name;
-    CategoryMappingName.push_back(label_name_str);
-    CategoryMappingName40.push_back(mpcat40_name_str);
+
+    len = strlen(label_name);
+    for (int j = 0; j < len; j++) {
+      if (label_name[j] == '#') label_name[j] = ' ';
+    }
+    len = strlen(mpcat40_name);
+    for (int j = 0; j < len; j++) {
+      if (mpcat40_name[j] == '_') mpcat40_name[j] = ' ';
+    }
+
+    CategoryMappingName.push_back(string(label_name));
+    CategoryMappingName40.push_back(string(mpcat40_name));
     for (int j = 0; j < 5; j++) { val = fscanf(fp, "%d", &dummy); }
     if (strcmp(cmd, "C")) { fprintf(stderr, "Error reading category %d\n", i); return 0; }
   }
